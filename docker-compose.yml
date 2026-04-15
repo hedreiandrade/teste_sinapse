@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Web Server Nginx
+  webserver:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    ports:
+      - "8001:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php-fpm
+    networks:
+      - laravel-network
+
+  # PHP-FPM para API
+  php-fpm:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: laravel13_gerencia_usuarios
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - postgresdb
+      - redis
+    networks:
+      - laravel-network
+    environment:
+      PHP_MEMORY_LIMIT: 256M
+      PHP_MAX_EXECUTION_TIME: 60
+
+  # Redis para cache/filas
+  redis:
+    image: redis:alpine
+    container_name: laravel_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel-network
+
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 1G
+    environment:
+      POSTGRES_DB: gerencia_usuarios
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123
+      POSTGRES_ROOT_PASSWORD: 123
+    volumes:
+      - ./.docker/postgres/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - laravel-network   
+
+networks:
+  laravel-network: 
+    driver: bridge
+
+volumes:
+  redis_data:
