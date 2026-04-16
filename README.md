@@ -1,5 +1,7 @@
 Teste Hedrei Andrade
 
+Costumo criar um Middlewire com JWT para não deixar as rotas desprotegidas, porém não foi solicitado no teste.
+
 ---------------------------------------------------------------------------------------
 Rodando com Docker : 
 ---------------------------------------------------------------------------------------
@@ -23,12 +25,14 @@ sudo chmod 777 * -R
 ```
 Configure o arquivo .env com as configurações de banco:
 ```
+```
 DB_CONNECTION=pgsql
 DB_HOST=postgresdb
 DB_PORT=5432
 DB_DATABASE=gerencia_usuarios
 DB_USERNAME=root
 DB_PASSWORD=123
+```
 
 Dentro do projeto teste_sinapse, Rode :
 ```
