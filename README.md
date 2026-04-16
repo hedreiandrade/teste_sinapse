@@ -47,6 +47,47 @@ Rode: ```php artisan migrate```
 Ainda dentro do container, 
 Rode: ```composer update```
 
+```
+Arquivos necessários para os testes
+```
+
+```
+Alterar .env 
+APP_ENV=testing
+
+DB_CONNECTION=pgsql
+DB_HOST=postgresdb_test
+DB_PORT=5432
+DB_DATABASE=gerencia_usuarios_test
+DB_USERNAME=root
+DB_PASSWORD=123
+```
+
+```
+Comandos para rodar os testes
+```
+
+# 1. Subir os containers
+docker-compose up -d
+
+# 2. Rodar migrations no banco de testes
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan migrate --env=testing
+
+# 3. Rodar todos os testes
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan test
+
+# 4. Rodar apenas Feature Tests
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan test --testsuite=Feature
+
+# 5. Rodar apenas Unit Tests
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan test --testsuite=Unit
+
+# 6. Rodar um teste específico
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan test --filter=UserApiTest
+
+# 7. Rodar com verbose
+docker exec laravel13_gerencia_usuarios_CONTAINER_ID php artisan test --verbose
+
 ---------------------------------------------------------------------------------------
 
 Para acessar a aplicação acesse : 

@@ -60,6 +60,23 @@ services:
     networks:
       - laravel-network   
 
+  # Banco Isolado para Testes
+  postgresdb_test:
+    container_name: postgresdb_test
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 1G
+    environment:
+      POSTGRES_DB: gerencia_usuarios_test
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - ./.docker/postgres_test/data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - laravel-network
+
 networks:
   laravel-network: 
     driver: bridge
