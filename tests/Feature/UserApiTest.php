@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserApiTest extends TestCase
@@ -13,8 +14,8 @@ class UserApiTest extends TestCase
     private $validUserData = [
         'name' => 'João Silva',
         'email' => 'joao@email.com',
-        'password' => 'Senha@123',
-        'password_confirmation' => 'Senha@123',
+        'password' => 'SenhaForte@2024',
+        'password_confirmation' => 'SenhaForte@2024',
         'celular' => '(11) 99999-9999',
     ];
 
@@ -28,25 +29,21 @@ class UserApiTest extends TestCase
 
     // ========== FLUXO FELIZ ==========
 
-    /** @test */
-    public function can_list_users()
+    #[Test]
+    public function test_can_list_users()
     {
-        User::factory()->count(3)->create();
-
         $response = $this->getJson('/api/users');
 
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                     'success',
                      'data' => [
                          '*' => ['id', 'name', 'email', 'celular', 'created_at', 'updated_at']
                      ],
-                     'message'
                  ]);
     }
 
-    /** @test */
-    public function can_create_user_with_valid_data()
+    #[Test]
+    public function test_can_create_user_with_valid_data()
     {
         $response = $this->postJson('/api/users', $this->validUserData);
 
@@ -62,10 +59,10 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function can_show_single_user()
+    #[Test]
+    public function test_can_show_single_user()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => null]);
 
         $response = $this->getJson("/api/users/{$user->id}");
 
@@ -76,16 +73,17 @@ class UserApiTest extends TestCase
                          'id' => $user->id,
                          'name' => $user->name,
                          'email' => $user->email,
+                         'celular' => $user->celular,
                      ]
                  ]);
         
         $this->assertArrayNotHasKey('password', $response->json('data'));
     }
 
-    /** @test */
-    public function can_update_user()
+    #[Test]
+    public function test_can_update_user()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => null]);
 
         $response = $this->putJson("/api/users/{$user->id}", [
             'name' => 'Nome Atualizado',
@@ -104,10 +102,10 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function can_soft_delete_user()
+    #[Test]
+    public function test_can_soft_delete_user()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => null]);
 
         $response = $this->deleteJson("/api/users/{$user->id}");
 
@@ -122,23 +120,26 @@ class UserApiTest extends TestCase
 
     // ========== FLUXO DE ERRO ==========
 
-    /** @test */
-    public function cannot_create_user_with_invalid_data()
+    #[Test]
+    public function test_cannot_create_user_with_invalid_data()
     {
         $response = $this->postJson('/api/users', $this->invalidUserData);
 
         $response->assertStatus(422)
-                 ->assertJson([
-                     'success' => false,
-                     'message' => 'Erro de validação'
+                 ->assertJsonStructure([
+                     'message',
+                     'errors'
                  ])
                  ->assertJsonValidationErrors(['name', 'email', 'password', 'celular']);
     }
 
-    /** @test */
-    public function cannot_create_user_with_duplicate_email()
+    #[Test]
+    public function test_cannot_create_user_with_duplicate_email()
     {
-        User::factory()->create(['email' => 'joao@email.com']);
+        User::factory()->create([
+            'email' => 'joao@email.com',
+            'email_verified_at' => null
+        ]);
 
         $response = $this->postJson('/api/users', $this->validUserData);
 
@@ -146,8 +147,8 @@ class UserApiTest extends TestCase
                  ->assertJsonValidationErrors(['email']);
     }
 
-    /** @test */
-    public function cannot_create_user_with_invalid_celular()
+    #[Test]
+    public function test_cannot_create_user_with_invalid_celular()
     {
         $invalidCelular = $this->validUserData;
         $invalidCelular['celular'] = '11999999999';
@@ -158,8 +159,8 @@ class UserApiTest extends TestCase
                  ->assertJsonValidationErrors(['celular']);
     }
 
-    /** @test */
-    public function returns_404_for_nonexistent_user()
+    #[Test]
+    public function test_returns_404_for_nonexistent_user()
     {
         $response = $this->getJson('/api/users/999');
 

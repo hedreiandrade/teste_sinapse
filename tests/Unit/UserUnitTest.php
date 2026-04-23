@@ -4,15 +4,18 @@ namespace Tests\Unit;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserUnitTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function user_can_be_created_with_valid_data()
+    #[Test]
+    public function test_user_can_be_created_with_valid_data()
     {
+        $user = User::factory()->create(['email_verified_at' => null]);
+
         $user = User::create([
             'name' => 'Test User',
             'email' => 'test@email.com',
@@ -27,9 +30,10 @@ class UserUnitTest extends TestCase
         $this->assertNotNull($user->password);
     }
 
-    /** @test */
-    public function user_email_must_be_unique()
+    #[Test]
+    public function test_user_email_must_be_unique()
     {
+        $user = User::factory()->create(['email_verified_at' => null]);
         User::create([
             'name' => 'User 1',
             'email' => 'duplicate@email.com',
@@ -47,8 +51,8 @@ class UserUnitTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function user_soft_delete_sets_deleted_at()
+    #[Test]
+    public function test_user_soft_delete_sets_deleted_at()
     {
         $user = User::create([
             'name' => 'Test User',
@@ -64,8 +68,8 @@ class UserUnitTest extends TestCase
         $this->assertNotNull($user->fresh()->deleted_at);
     }
 
-    /** @test */
-    public function user_can_be_restored_after_soft_delete()
+    #[Test]
+    public function test_user_can_be_restored_after_soft_delete()
     {
         $user = User::create([
             'name' => 'Test User',
